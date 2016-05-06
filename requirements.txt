@@ -1,0 +1,17 @@
+aiohttp==0.21.6
+backports.shutil-get-terminal-size==1.0.0
+chardet==2.3.0
+decorator==4.0.9
+dice==1.0.2
+docopt==0.6.2
+ipython==4.2.0
+ipython-genutils==0.1.0
+pexpect==4.0.1
+pickleshare==0.7.2
+ptyprocess==0.5.1
+pydice==1.0.1b4
+pyparsing==2.1.1
+requests==2.10.0
+simplegeneric==0.8.1
+telepot==7.1
+traitlets==4.2.1
