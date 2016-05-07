@@ -5,6 +5,7 @@ import telepot
 import telepot.async
 
 import dataset
+from urllib.request import urlopen
 
 from . import utils
 
@@ -43,11 +44,14 @@ class KolkarasBot(telepot.async.SpeakerBot):
                     )),
                 parse_mode="Markdown")
 
-        if "/newlore" == parsed_text[0]:
-            await self.enter_lore(msg)
+        # if "/newlore" == parsed_text[0]:
+        #     await self.enter_lore(msg)
 
         if "/lore" == parsed_text[0]:
             await self.search_lore(msg)
+
+        if "/wiki" == parsed_text[0]:
+            await self.where_is_wiki(msg)
 
     async def create_listener(self, chat_id, **kwargs):
         """Create listener and wait for response. """
@@ -55,6 +59,13 @@ class KolkarasBot(telepot.async.SpeakerBot):
         listener.capture(chat__id=chat_id, **kwargs)
         return listener
 
+    async def where_is_wiki(self, msg):
+        content_type, chat_type, chat_id = telepot.glance(msg)
+        ip = urlopen('http://ip.42.pl/raw').read().decode()
+        await self.sendMessage(
+            chat_id,
+            "http://{}:4567/Home".format(ip)
+        )
     # async def enter_lore(self, msg):
     #     """Enters lore into database."""
     #     content_type, chat_type, chat_id = telepot.glance(msg)
