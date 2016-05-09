@@ -6,8 +6,6 @@ import telepot.async
 from fuzzywuzzy import process
 import re
 
-from urllib.request import urlopen
-
 from . import utils
 
 from fuzzywuzzy.fuzz import WRatio, ratio
@@ -41,9 +39,7 @@ class KolkarasBot(telepot.async.SpeakerBot):
         if "/help" == parsed_text[0]:
             await self.sendMessage(
                 chat_id,
-                await utils.odin_transmission((
-                    "/roll AdS - e.g. 4d12\n"
-                    "/roll - Rolls 3d6")))
+                await utils.odin_transmission(utils.help_message))
 
         if "/latest" == parsed_text[0]:
             await self.sendMessage(
@@ -54,7 +50,7 @@ class KolkarasBot(telepot.async.SpeakerBot):
         if "/roll" == parsed_text[0]:
             await self.sendMessage(
                 chat_id,
-                await roll_the_dice(
+                await utils.roll_the_dice(
                     ''.join(parsed_text[1] if parsed_text[1] else "3d6"
                     )),
                 parse_mode="Markdown")
