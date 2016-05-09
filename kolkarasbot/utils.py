@@ -42,15 +42,12 @@ async def odin_transmission(string):
 """.format(string)
 
 
-help_message = """~~~ ODIN TRANSMISSION ~~~
-
-/roll AdS - e.g. 4d12
+help_message = """/roll AdS - e.g. 4d12
 /roll - Rolls 3d6
 /wiki - Returns current wiki url
 /lore - Searches ODIN's archives (aka wiki) for lore
 
 Source code: https://github.com/nasfarley88/kolkarasbot
-~~~ END ODIN TRANSMISSION ~~~
 """
 
 
