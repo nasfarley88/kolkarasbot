@@ -89,8 +89,10 @@ class KolkarasBot(telepot.async.SpeakerBot):
                         entry_name,
                         choices,
                         scorer=custom_match)[0])) as data_file:
-            data = re.sub(r"\[(.*?)\]\(.*?\)", r"*\1*", data_file.read())
+            data = re.sub(r" ?\* ", r"- ", data_file.read())
+            data = re.sub(r"\[(.*?)\]\(.*?\)", r"*\1*", data)
             data = re.sub(r"\[\[(.*?)\]\]", r"\1", data)
+            import pdb; pdb.set_trace()
             await self.sendMessage(
                 chat_id,
                 await utils.odin_transmission(
