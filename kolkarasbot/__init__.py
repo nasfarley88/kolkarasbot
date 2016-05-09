@@ -73,10 +73,9 @@ class KolkarasBot(telepot.async.SpeakerBot):
 
     async def where_is_wiki(self, msg):
         content_type, chat_type, chat_id = telepot.glance(msg)
-        ip = urlopen('http://ip.42.pl/raw').read().decode()
         await self.sendMessage(
             chat_id,
-            "http://{}:4567/Home".format(ip)
+            await utils.get_wiki_address()
         )
 
     async def search_lore(self, msg):
@@ -99,7 +98,9 @@ class KolkarasBot(telepot.async.SpeakerBot):
             await self.sendMessage(
                 chat_id,
                 await utils.odin_transmission(
-                    "Entry matching: {}\n\n{}".format(
+                    "Entry matching: {}\n\n{}\n\nFull Entry: {}".format(
                         data_file.name.split('/')[-1].replace('.md', ''),
-                        data)),
+                        data,
+                        await utils.construct_url_from_path(data_file.name)
+                    )),
                 parse_mode="Markdown")

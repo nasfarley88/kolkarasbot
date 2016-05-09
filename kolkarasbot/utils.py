@@ -2,6 +2,9 @@ import random
 import re
 import dice
 
+from urllib.request import urlopen
+
+
 async def parse_command(string):
     """Formats command and returns arguments (if any)."""
 
@@ -46,3 +49,16 @@ help_message = """~~~ ODIN TRANSMISSION ~~~
 
 ~~~ END ODIN TRANSMISSION ~~~
 """
+
+
+async def get_wiki_address():
+    ip = urlopen('http://ip.42.pl/raw').read().decode()
+    return "http://{}:4567/".format(ip)
+
+async def construct_url_from_path(path):
+    """Constructs url for wiki from path. """
+    base_url = await get_wiki_address()
+    formatted_path = (path
+                      .replace("wiki/", "")
+                      .replace(".md", ""))
+    return base_url+formatted_path
