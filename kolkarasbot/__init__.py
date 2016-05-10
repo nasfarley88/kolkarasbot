@@ -3,23 +3,9 @@ import sys
 import asyncio
 import telepot
 import telepot.async
-from fuzzywuzzy import process
 import re
 
 from . import utils, wiki
-
-from fuzzywuzzy.fuzz import WRatio, ratio
-
-def custom_match(s1, s2):
-    """A custom matching function which weights strings which match ratio.
-
-    Check the code."""
-
-    main_match = 100*WRatio(s1, s2)
-    ratio_match = ratio(s1, s2)
-
-    return main_match + ratio_match
-
 
 class KolkarasBot(telepot.async.SpeakerBot):
     async def on_chat_message(self, msg):
@@ -68,6 +54,7 @@ class KolkarasBot(telepot.async.SpeakerBot):
                     await wiki.get_index()),
                 parse_mode="Markdown")
 
+
     async def create_listener(self, chat_id, **kwargs):
         """Create listener and wait for response. """
         listener = super(KolkarasBot, self).create_listener()
@@ -96,9 +83,7 @@ class KolkarasBot(telepot.async.SpeakerBot):
                         entry_name,
                         choices,
                         scorer=custom_match)[0])) as data_file:
-            data = re.sub(r" ?\* ", r"- ", data_file.read())
-            data = re.sub(r"\[(.*?)\]\(.*?\)", r"*\1*", data)
-            data = re.sub(r"\[\[(.*?)\]\]", r"\1", data)
+            data = wiki.markdown_to_telegram(data_file.read())
             await self.sendMessage(
                 chat_id,
                 await utils.odin_transmission(
