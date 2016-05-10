@@ -1,7 +1,24 @@
 import os
+import re
 from fuzzywuzzy import process
 from fuzzywuzzy.fuzz import WRatio, ratio
 """Functions that probe the wiki and produce results. """
+
+def filename_to_lore_cmd(filename):
+    return "/lore_{}".format(
+        (
+            filename
+            .replace("-", "_")
+            .replace(".md", "")
+        ))
+
+def lore_cmd_to_filename(cmd):
+    return "{}.md".format(
+        (
+            cmd
+            .replace("/lore_", "")
+            .replace("_", "-")))
+
 
 def get_all_entries(location):
     entries = set(os.listdir("wiki/{}".format(location)))
@@ -17,13 +34,12 @@ def filename_to_name(filename):
 
 async def get_index():
     """Get index from the wiki. """
-    entries = get_all_entries("lore")
-    entries = {
-        filename_to_name(x) for x in entries}
-    entries = ["- {}".format(x) for x in entries]
+    raw_entries = get_all_entries("lore")
+    entries = ["> {} - {}".format(
+        filename_to_name(x), filename_to_lore_cmd(x)) for x in raw_entries]
     entries.sort()
 
-    output_string = "*Index:*\n{}".format("\n".join(entries))
+    output_string = "Index:\n{}".format("\n".join(entries))
 
     return output_string
 

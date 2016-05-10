@@ -51,8 +51,29 @@ class KolkarasBot(telepot.async.SpeakerBot):
             await self.sendMessage(
                 chat_id,
                 await utils.odin_transmission(
-                    await wiki.get_index()),
-                parse_mode="Markdown")
+                    await wiki.get_index()))
+
+        # Special lore finding commands
+        # TODO tidy with nce custom formatting commands
+        # Maybe regexp!
+        for ent in [wiki.filename_to_lore_cmd(x)\
+                    for x in wiki.get_all_entries("lore")]:
+            print(ent)
+            if ent == parsed_text[0]:
+                with open("wiki/lore/{}".format(
+                        wiki.lore_cmd_to_filename(ent))) as data_file:
+                    data = wiki.markdown_to_telegram(data_file.read())
+                    await self.sendMessage(
+                        chat_id,
+                        await utils.odin_transmission(
+                            "Entry matching: {}\n\n{}\n\nFull Entry: {}".format(
+                                data_file.name.split('/')[-1].replace('.md', ''),
+                                data,
+                                await utils.construct_url_from_path(data_file.name)
+                            )),
+                        parse_mode="Markdown")
+
+
 
 
     async def create_listener(self, chat_id, **kwargs):
@@ -79,10 +100,7 @@ class KolkarasBot(telepot.async.SpeakerBot):
         choices = os.listdir("wiki/lore")
         with open(
                 "wiki/lore/{}".format(
-                    process.extractOne(
-                        entry_name,
-                        choices,
-                        scorer=custom_match)[0])) as data_file:
+                    wiki.fuzzy_search(entry_name))) as data_file:
             data = wiki.markdown_to_telegram(data_file.read())
             await self.sendMessage(
                 chat_id,
