@@ -61,6 +61,12 @@ class KolkarasBot(telepot.async.SpeakerBot):
         if "/wiki" == parsed_text[0]:
             await self.where_is_wiki(msg)
 
+        if "/index" == parsed_text[0]:
+            choices = os.listdir("wiki/lore")
+            await self.sendMessage(
+                chat_id,
+                str('\n'.join(choices)))
+
     async def create_listener(self, chat_id, **kwargs):
         """Create listener and wait for response. """
         listener = super(KolkarasBot, self).create_listener()
@@ -89,7 +95,7 @@ class KolkarasBot(telepot.async.SpeakerBot):
                         entry_name,
                         choices,
                         scorer=custom_match)[0])) as data_file:
-            data = re.sub(r"^ ?\* ", r"- ", data_file.read())
+            data = re.sub(r" ?\* ", r"- ", data_file.read())
             data = re.sub(r"\[(.*?)\]\(.*?\)", r"*\1*", data)
             data = re.sub(r"\[\[(.*?)\]\]", r"\1", data)
             await self.sendMessage(

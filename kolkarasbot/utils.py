@@ -52,7 +52,7 @@ Source code: https://github.com/nasfarley88/kolkarasbot
 
 
 async def get_wiki_address():
-    ip = urlopen('http://ip.42.pl/raw').read().decode()
+    ip = urlopen('http://ip.42.pl/raw').read().decode('utf-8')
     return "http://{}:4567/".format(ip)
 
 async def construct_url_from_path(path):
