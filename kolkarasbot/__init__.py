@@ -6,7 +6,7 @@ import telepot.async
 from fuzzywuzzy import process
 import re
 
-from . import utils
+from . import utils, wiki
 
 from fuzzywuzzy.fuzz import WRatio, ratio
 
@@ -62,10 +62,11 @@ class KolkarasBot(telepot.async.SpeakerBot):
             await self.where_is_wiki(msg)
 
         if "/index" == parsed_text[0]:
-            choices = os.listdir("wiki/lore")
             await self.sendMessage(
                 chat_id,
-                str('\n'.join(choices)))
+                await utils.odin_transmission(
+                    await wiki.get_index()),
+                parse_mode="Markdown")
 
     async def create_listener(self, chat_id, **kwargs):
         """Create listener and wait for response. """
