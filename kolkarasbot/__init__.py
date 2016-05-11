@@ -5,9 +5,40 @@ import telepot
 import telepot.async
 import re
 
+from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
+from telepot.namedtuple import InlineQueryResultArticle, InlineQueryResultPhoto, InputTextMessageContent
+
 from . import utils, wiki
 
 class KolkarasBot(telepot.async.SpeakerBot):
+
+    def on_inline_query(self, msg):
+        def compute():
+            query_id, from_id, query_string = telepot.glance(msg, flavor='inline_query')
+            if query_string == "":
+                return []
+            matches = wiki.fuzzy_search_results(query_string)
+            entries = [
+                InlineQueryResultArticle(
+                    id=match[0],
+                    title=wiki.filename_to_name(match[0]),
+                    description=[x for x in open("wiki/lore/{}".format(match[0])).readlines()][2], # TODO remove this perversion of python
+                    input_message_content=InputTextMessageContent(message_text=wiki.filename_to_lore_cmd(match[0])))
+                for match in matches]
+
+            return entries
+
+        self._answerer.answer(msg, compute)
+
+    def on_chosen_inline_result(self, msg):
+        # This is used for feedback, not needed for a bot this small.
+        return
+
+    def __init__(self, *args, **kwargs):
+        "docstring"
+        super(KolkarasBot, self).__init__(*args, **kwargs)
+        self._answerer = telepot.async.helper.Answerer(self)
+
     async def on_chat_message(self, msg):
         content_type, chat_type, chat_id = telepot.glance(msg)
         print('Chat:', content_type, chat_type, chat_id)
@@ -51,14 +82,14 @@ class KolkarasBot(telepot.async.SpeakerBot):
             await self.sendMessage(
                 chat_id,
                 await utils.odin_transmission(
-                    await wiki.get_index()))
+                    await wiki.get_index()),
+                parse_mode="html")
 
         # Special lore finding commands
         # TODO tidy with nce custom formatting commands
         # Maybe regexp!
         for ent in [wiki.filename_to_lore_cmd(x)\
                     for x in wiki.get_all_entries("lore")]:
-            print(ent)
             if ent == parsed_text[0]:
                 with open("wiki/lore/{}".format(
                         wiki.lore_cmd_to_filename(ent))) as data_file:
@@ -69,7 +100,7 @@ class KolkarasBot(telepot.async.SpeakerBot):
                             "Entry matching: {}\n\n{}\n\nFull Entry: {}".format(
                                 data_file.name.split('/')[-1].replace('.md', ''),
                                 data,
-                                await utils.construct_url_from_path(data_file.name)
+                                wiki.construct_url_from_path(data_file.name)
                             )),
                         parse_mode="Markdown")
 
@@ -86,7 +117,7 @@ class KolkarasBot(telepot.async.SpeakerBot):
         content_type, chat_type, chat_id = telepot.glance(msg)
         await self.sendMessage(
             chat_id,
-            await utils.get_wiki_address()
+            wiki.get_wiki_address()
         )
 
     async def search_lore(self, msg):
@@ -108,6 +139,6 @@ class KolkarasBot(telepot.async.SpeakerBot):
                     "Entry matching: {}\n\n{}\n\nFull Entry: {}".format(
                         data_file.name.split('/')[-1].replace('.md', ''),
                         data,
-                        await utils.construct_url_from_path(data_file.name)
+                        wiki.construct_url_from_path(data_file.name)
                     )),
                 parse_mode="Markdown")

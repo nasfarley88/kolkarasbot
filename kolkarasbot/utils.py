@@ -55,10 +55,3 @@ async def get_wiki_address():
     ip = urlopen('http://ip.42.pl/raw').read().decode('utf-8')
     return "http://{}:4567/".format(ip)
 
-async def construct_url_from_path(path):
-    """Constructs url for wiki from path. """
-    base_url = await get_wiki_address()
-    formatted_path = (path
-                      .replace("wiki/", "")
-                      .replace(".md", ""))
-    return base_url+formatted_path
