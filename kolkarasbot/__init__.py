@@ -35,11 +35,15 @@ class KolkarasBot(telepot.async.SpeakerBot):
                             title=wiki.filename_to_name(match),
                             description=description,
                             input_message_content=InputTextMessageContent(
-                                message_text=wiki.markdown_to_telegram(utils.odin_transmission(raw_description)))))
+                                message_text=self.format_wiki_entry(raw_description),
+                                parse_mode="Markdown")))
 
             return entries
 
         self._answerer.answer(msg, compute)
+
+    def format_wiki_entry(self, wiki_text):
+        return wiki.markdown_to_telegram(utils.odin_transmission(wiki_text))
 
     def on_chosen_inline_result(self, msg):
         # This is used for feedback, not needed for a bot this small.
