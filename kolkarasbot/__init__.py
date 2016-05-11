@@ -18,13 +18,20 @@ class KolkarasBot(telepot.async.SpeakerBot):
             if query_string == "":
                 return []
             matches = wiki.fuzzy_search_results(query_string)
-            entries = [
-                InlineQueryResultArticle(
-                    id=match[0],
-                    title=wiki.filename_to_name(match[0]),
-                    description=[x for x in open("wiki/lore/{}".format(match[0])).readlines()][2], # TODO remove this perversion of python
-                    input_message_content=InputTextMessageContent(message_text=wiki.filename_to_lore_cmd(match[0])))
-                for match in matches]
+            entries = []
+            for match in (x[0] for x in matches):
+                with open("wiki/lore/{}".format(match)) as wiki_file:
+                    description = wiki_file.read()
+                    if description[0] == "#":
+                        description = re.sub(r"#.*?\n\n", "", description)
+                        description = re.sub(r"\n\n.*", "", description)
+                    entries.append(
+                        InlineQueryResultArticle(
+                            id=match,
+                            title=wiki.filename_to_name(match),
+                            description=description,
+                            input_message_content=InputTextMessageContent(
+                                message_text=wiki.filename_to_lore_cmd(match))))
 
             return entries
 
