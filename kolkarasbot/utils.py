@@ -2,7 +2,6 @@ import random
 import re
 import dice
 
-from urllib.request import urlopen
 
 
 async def parse_command(string):
@@ -32,7 +31,7 @@ async def roll_the_dice(string):
         # Something went wrong, just send the output
         return str(dice_roll)
 
-async def odin_transmission(string):
+def odin_transmission(string):
     """Formats a string as an ODIN transmission. """
     return """~~~ ODIN TRANSMISSION ~~~
 
@@ -51,7 +50,4 @@ Source code: https://github.com/nasfarley88/kolkarasbot
 """
 
 
-async def get_wiki_address():
-    ip = urlopen('http://ip.42.pl/raw').read().decode('utf-8')
-    return "http://{}:4567/".format(ip)
 

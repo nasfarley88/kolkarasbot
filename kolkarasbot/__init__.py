@@ -21,17 +21,21 @@ class KolkarasBot(telepot.async.SpeakerBot):
             entries = []
             for match in (x[0] for x in matches):
                 with open("wiki/lore/{}".format(match)) as wiki_file:
-                    description = wiki_file.read()
-                    if description[0] == "#":
-                        description = re.sub(r"#.*?\n\n", "", description)
-                        description = re.sub(r"\n\n.*", "", description)
+                    raw_description = wiki_file.read()
+                    if raw_description[0] == "#":
+                        description = re.sub(r"#.*?\n\n", "", raw_description)
+                    else:
+                        description = raw_description
+
+                    # Only take introductory paragraph
+                    description = re.sub(r"\n\n.*", "", description)
                     entries.append(
                         InlineQueryResultArticle(
                             id=match,
                             title=wiki.filename_to_name(match),
                             description=description,
                             input_message_content=InputTextMessageContent(
-                                message_text=wiki.filename_to_lore_cmd(match))))
+                                message_text=wiki.markdown_to_telegram(utils.odin_transmission(raw_description)))))
 
             return entries
 
@@ -63,12 +67,12 @@ class KolkarasBot(telepot.async.SpeakerBot):
         if "/help" == parsed_text[0]:
             await self.sendMessage(
                 chat_id,
-                await utils.odin_transmission(utils.help_message))
+                utils.odin_transmission(utils.help_message))
 
         if "/latest" == parsed_text[0]:
             await self.sendMessage(
                 chat_id,
-                await odin_transmission(
+                odin_transmission(
                     "WARNING: CURRENT NEWS FEEDS ARE NOT OPERATIONAL."))
 
         if "/roll" == parsed_text[0]:
@@ -88,7 +92,7 @@ class KolkarasBot(telepot.async.SpeakerBot):
         if "/index" == parsed_text[0]:
             await self.sendMessage(
                 chat_id,
-                await utils.odin_transmission(
+                utils.odin_transmission(
                     await wiki.get_index()),
                 parse_mode="html")
 
@@ -103,7 +107,7 @@ class KolkarasBot(telepot.async.SpeakerBot):
                     data = wiki.markdown_to_telegram(data_file.read())
                     await self.sendMessage(
                         chat_id,
-                        await utils.odin_transmission(
+                        utils.odin_transmission(
                             "Entry matching: {}\n\n{}\n\nFull Entry: {}".format(
                                 data_file.name.split('/')[-1].replace('.md', ''),
                                 data,
@@ -142,7 +146,7 @@ class KolkarasBot(telepot.async.SpeakerBot):
             data = wiki.markdown_to_telegram(data_file.read())
             await self.sendMessage(
                 chat_id,
-                await utils.odin_transmission(
+                utils.odin_transmission(
                     "Entry matching: {}\n\n{}\n\nFull Entry: {}".format(
                         data_file.name.split('/')[-1].replace('.md', ''),
                         data,
