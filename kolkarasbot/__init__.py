@@ -10,6 +10,8 @@ from telepot.namedtuple import InlineQueryResultArticle, InlineQueryResultPhoto,
 
 from . import utils, wiki
 
+import itertools
+
 class KolkarasBot(telepot.async.SpeakerBot):
 
     def on_inline_query(self, msg):
@@ -17,6 +19,15 @@ class KolkarasBot(telepot.async.SpeakerBot):
             query_id, from_id, query_string = telepot.glance(msg, flavor='inline_query')
             if query_string == "":
                 return []
+            elif len(re.findall(r"^\d+$", query_string)) == 1:
+                probability = utils.success_probability(int(query_string))
+                return [InlineQueryResultArticle(
+                            id="dice_roll",
+                            title=str(probability),
+                            description="The probability of beating a {} is {:0.3f}.".format(query_string, probability),
+                            input_message_content=InputTextMessageContent(
+                                message_text="The dice are rolled: {}".format(utils.roll_the_dice("3d6")),
+                                parse_mode="Markdown"))]
             matches = wiki.fuzzy_search_results(query_string)
             entries = []
             for match in (x[0] for x in matches):
@@ -82,7 +93,7 @@ class KolkarasBot(telepot.async.SpeakerBot):
         if "/roll" == parsed_text[0]:
             await self.sendMessage(
                 chat_id,
-                await utils.roll_the_dice(
+                utils.roll_the_dice(
                     ''.join(parsed_text[1] if parsed_text[1] else "3d6"
                     )),
                 parse_mode="Markdown")
